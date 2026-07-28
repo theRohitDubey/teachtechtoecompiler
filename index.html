@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teach Tech Toe - 50+ Languages Compiler</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #ff6b1a;
+            --dark: #1a1a1a;
+            --light: #f6f3ec;
+            --accent: #ff9800;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            margin: 0;
+            padding: 0;
+        }
+
+        #header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: #2a2a2a;
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #language-select {
+            padding: 8px 12px;
+            font-family: var(--mono);
+            font-size: 13px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            max-width: 250px;
+        }
+
+        #code-editor {
+            flex: 1;
+            padding: 16px;
+            font-family: var(--mono);
+            font-size: 14px;
+            border: none;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            resize: none;
+            outline: none;
+        }
+
+        .editor-tools {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        #console-output {
+            flex: 1;
+            padding: 16px;
+            font-family: var(--mono);
+            font-size: 13px;
+            background: #1e1e1e;
+            color: #0f0;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .output-tools {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e55000;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #555;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #4fd68a;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.loading {
+            background: #ff9800;
+            animation: pulse 1s infinite;
+        }
+
+        .status-badge.error {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        #output-iframe {
+            flex: 1;
+            border: none;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .lang-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .input-section {
+            border-top: 1px solid #ddd;
+            padding: 12px 16px;
+            background: #f5f5f5;
+        }
+
+        #stdin-input {
+            width: 100%;
+            padding: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 100px;
+            resize: vertical;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: calc(100vh - 100px);
+            }
+
+            .panel {
+                min-height: 400px;
+            }
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+            <div>
+                <h1>🚀 Teach Tech Toe Compiler</h1>
+                <p style="margin: 5px 0 0 0; font-size: 13px; color: #ccc;">50+ Languages • Zero Setup • Free Forever</p>
+            </div>
+            <div style="text-align: right;">
+                <span class="status-badge" id="status">Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Compiler -->
+    <div class="main-container">
+        <!-- Code Editor -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>📝 Code Editor</span>
+                <select id="language-select" onchange="switchLanguage(this.value)">
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="c">C</option>
+                    <option value="java">Java</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML/CSS/JS</option>
+                    <option value="php">PHP</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="csharp">C#</option>
+                    <option value="kotlin">Kotlin</option>
+                    <option value="swift">Swift</option>
+                    <option value="r">R</option>
+                    <option value="bash">Bash</option>
+                    <option value="sql">SQL</option>
+                    <option value="scala">Scala</option>
+                    <option value="perl">Perl</option>
+                    <option value="lua">Lua</option>
+                </select>
+            </div>
+            <textarea id="code-editor" placeholder="Write your code here..."></textarea>
+            <div class="input-section">
+                <label style="font-size: 12px; font-weight: 600;">📥 Input (stdin)</label>
+                <textarea id="stdin-input" placeholder="Optional: Provide input for your program..."></textarea>
+            </div>
+            <div class="editor-tools">
+                <button class="btn btn-primary" onclick="executeCode()">
+                    <i class="fas fa-play"></i> Run Code
+                </button>
+                <button class="btn btn-secondary" onclick="clearCode()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+                <button class="btn btn-secondary" onclick="downloadCode()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+
+        <!-- Output Console -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>📤 Output Console</span>
+                <span style="font-size: 12px; color: #888;" id="exec-time"></span>
+            </div>
+            <div id="console-output">Click "Run Code" to execute your script.</div>
+            <iframe id="output-iframe" style="display: none;"></iframe>
+            <div class="output-tools">
+                <button class="btn btn-secondary" onclick="copyOutput()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn btn-secondary" onclick="shareCode()">
+                    <i class="fas fa-share"></i> Share
+                </button>
+                <button class="btn btn-secondary" onclick="clearOutput()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Powered by <strong>Piston API</strong> (50+ Languages) | 
+        <a href="https://teachtechtoe.com" target="_blank">Teach Tech Toe</a> |
+        <a href="#" onclick="showLanguages()">View All Languages</a>
+    </div>
+
+    <script>
+        // Detect environment
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000'
+            : window.location.origin;
+
+        let currentLang = 'python';
+        let lastCode = '';
+
+        const templates = {
+            'python': `# Python Example
+print("Hello, World!")
+for i in range(1, 4):
+    print(f"Number: {i}")`,
+            'cpp': `#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    for(int i = 1; i <= 3; i++) {
+        cout << "Number: " << i << endl;
+    }
+    return 0;
+}`,
+            'c': `#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    for(int i = 1; i <= 3; i++) {
+        printf("Number: %d\\n", i);
+    }
+    return 0;
+}`,
+            'java': `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        for(int i = 1; i <= 3; i++) {
+            System.out.println("Number: " + i);
+        }
+    }
+}`,
+            'javascript': `console.log("Hello, World!");
+for(let i = 1; i <= 3; i++) {
+    console.log(\`Number: \${i}\`);
+}`,
+            'html': `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { color: #ff6b1a; }
+  </style>
+</head>
+<body>
+  <h1>Hello, World!</h1>
+  <p>This is HTML with CSS and JavaScript.</p>
+  <button onclick="alert('JavaScript Works!')">Click Me</button>
+</body>
+</html>`,
+            'php': `<?php
+echo "Hello, World!\\n";
+for($i = 1; $i <= 3; $i++) {
+    echo "Number: " . $i . "\\n";
+}
+?>`,
+            'go': `package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+    for i := 1; i <= 3; i++ {
+        fmt.Printf("Number: %d\\n", i)
+    }
+}`,
+            'rust': `fn main() {
+    println!("Hello, World!");
+    for i in 1..=3 {
+        println!("Number: {}", i);
+    }
+}`,
+            'ruby': `puts "Hello, World!"
+(1..3).each do |i|
+  puts "Number: \#{i}"
+end`,
+            'typescript': `console.log("Hello, World!");
+for(let i: number = 1; i <= 3; i++) {
+    console.log(\`Number: \${i}\`);
+}`,
+            'csharp': `using System;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Hello, World!");
+        for(int i = 1; i <= 3; i++) {
+            Console.WriteLine($"Number: {i}");
+        }
+    }
+}`,
+            'kotlin': `fun main() {
+    println("Hello, World!")
+    for(i in 1..3) {
+        println("Number: \$i")
+    }
+}`,
+            'swift': `print("Hello, World!")
+for i in 1...3 {
+    print("Number: \\(i)")
+}`,
+            'r': `print("Hello, World!")
+for (i in 1:3) {
+    print(paste("Number:", i))
+}`,
+            'bash': `#!/bin/bash
+echo "Hello, World!"
+for i in 1 2 3; do
+    echo "Number: $i"
+done`,
+            'sql': `SELECT 'Hello, World!' AS message;
+SELECT * FROM (VALUES (1), (2), (3)) AS t(number);`,
+            'scala': `object Main {
+    def main(args: Array[String]) {
+        println("Hello, World!")
+        for (i <- 1 to 3) {
+            println(s"Number: $i")
+        }
+    }
+}`,
+            'perl': `print "Hello, World!\\n";
+for my $i (1..3) {
+    print "Number: $i\\n";
+}`,
+            'lua': `print("Hello, World!")
+for i = 1, 3 do
+    print("Number: " .. i)
+end`
+        };
+
+        // Initialize
+        document.getElementById('code-editor').value = templates['python'];
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('code-editor').value = templates[lang] || "// Start coding here...";
+            
+            const iframe = document.getElementById('output-iframe');
+            const console = document.getElementById('console-output');
+            
+            if (lang === 'html') {
+                iframe.style.display = 'block';
+                console.style.display = 'none';
+            } else {
+                iframe.style.display = 'none';
+                console.style.display = 'block';
+                console.innerText = "Click 'Run Code' to execute.";
+            }
+        }
+
+        async function executeCode() {
+            const code = document.getElementById('code-editor').value;
+            const stdin = document.getElementById('stdin-input').value;
+            const console = document.getElementById('console-output');
+            const iframe = document.getElementById('output-iframe');
+            const status = document.getElementById('status');
+            const execTime = document.getElementById('exec-time');
+
+            if (!code.trim()) {
+                console.innerText = "⚠️ Please enter some code first!";
+                return;
+            }
+
+            status.innerText = 'Executing...';
+            status.classList.add('loading');
+            status.classList.remove('error');
+            console.innerText = 'Compiling and running...';
+            execTime.innerText = '';
+
+            try {
+                if (currentLang === 'html') {
+                    iframe.srcdoc = code;
+                    status.innerText = 'Ready';
+                    status.classList.remove('loading');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/api/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code: code,
+                        language: currentLang,
+                        stdin: stdin
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success || data.output) {
+                    console.innerText = data.output || 'Execution completed.';
+                    if (data.execution_time) {
+                        execTime.innerText = `⏱️ ${data.execution_time.toFixed(3)}s`;
+                    }
+                    status.innerText = 'Success';
+                    status.classList.remove('loading');
+                    status.classList.remove('error');
+                } else {
+                    console.innerText = 'Error:\n' + (data.output || 'Unknown error');
+                    status.innerText = 'Error';
+                    status.classList.remove('loading');
+                    status.classList.add('error');
+                }
+            } catch (error) {
+                console.innerText = `Connection Error:\n${error.message}\n\nMake sure the server is running.`;
+                status.innerText = 'Error';
+                status.classList.remove('loading');
+                status.classList.add('error');
+            }
+        }
+
+        function clearCode() {
+            document.getElementById('code-editor').value = '';
+        }
+
+        function clearOutput() {
+            document.getElementById('console-output').innerText = '';
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('console-output').innerText;
+            navigator.clipboard.writeText(output).then(() => {
+                alert('✅ Output copied to clipboard!');
+            });
+        }
+
+        function downloadCode() {
+            const code = document.getElementById('code-editor').value;
+            const ext = currentLang === 'python' ? 'py' : currentLang;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `code.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function shareCode() {
+            const code = document.getElementById('code-editor').value;
+            const shareText = `Check out my code: ${currentLang.toUpperCase()}\n\n${code}`;
+            navigator.share ? navigator.share({text: shareText}) : alert('Share functionality not supported');
+        }
+
+        function showLanguages() {
+            alert(`Supported Languages (50+):\n\nPython, C, C++, Java, JavaScript, HTML, CSS, PHP, Go, Rust, Ruby, TypeScript, C#, Kotlin, Swift, R, Bash, SQL, Scala, Perl, Lua, Haskell, Clojure, Elixir, Erlang, Julia, Dart, Objective-C, F#, and more!\n\nNew languages added regularly.`);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                executeCode();
+            }
+        });
+    </script>
+</body>
+</html>
